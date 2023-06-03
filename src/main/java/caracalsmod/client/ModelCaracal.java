@@ -44,9 +44,26 @@ public class ModelCaracal extends ModelBase {
         BODY.cubeList.add(new ModelBox(BODY, 0, 0, -3.0443F, -10.0F, -0.6182F, 6, 6, 12, 0.0F, false));
         BODY.cubeList.add(new ModelBox(BODY, 22, 18, -3.0443F, -9.75F, -2.6182F, 6, 5, 2, 0.0F, false));
 
+        TAIL = new ModelRenderer(this);
+        TAIL.setRotationPoint(-0.0443F, -8.5F, 11.3818F);
+        BODY.addChild(TAIL);
+
+
+        TAIL_TIP = new ModelRenderer(this);
+        TAIL_TIP.setRotationPoint(0.0F, 4.3355F, 2.834F);
+        TAIL.addChild(TAIL_TIP);
+        setRotationAngle(TAIL_TIP, -1.309F, 0.0F, 0.0F);
+        TAIL_TIP.cubeList.add(new ModelBox(TAIL_TIP, 27, 3, -0.4557F, -0.6959F, 0.0335F, 1, 1, 3, 0.0F, false));
+
+        TAIL_ROOT = new ModelRenderer(this);
+        TAIL_ROOT.setRotationPoint(0.0F, 1.6829F, -8.4676F);
+        TAIL.addChild(TAIL_ROOT);
+        setRotationAngle(TAIL_ROOT, -0.9599F, 0.0F, 0.0F);
+        TAIL_ROOT.cubeList.add(new ModelBox(TAIL_ROOT, 24, 0, -0.4557F, -8.3787F, 2.9247F, 1, 1, 6, 0.0F, false));
 
         LEGS = new ModelRenderer(this);
-        LEGS.setRotationPoint(0.0F, 24.0F, 0.0F);
+        LEGS.setRotationPoint(-0.0443F, 0.0F, 2.3818F);
+        BODY.addChild(LEGS);
 
 
         BACK_RIGHT_LEG = new ModelRenderer(this);
@@ -70,12 +87,12 @@ public class ModelCaracal extends ModelBase {
         FRONT_LEFT_LEG.cubeList.add(new ModelBox(FRONT_LEFT_LEG, 20, 25, -3.2F, -2.1829F, -3.7324F, 2, 9, 2, 0.0F, false));
 
         HEAD = new ModelRenderer(this);
-        HEAD.setRotationPoint(0.0F, 24.0F, -1.0F);
-        HEAD.cubeList.add(new ModelBox(HEAD, 1, 19, -3.0F, -10.0F, -8.0F, 6, 4, 4, 0.0F, false));
-        HEAD.cubeList.add(new ModelBox(HEAD, 24, 7, -1.5F, -8.0F, -9.0F, 3, 2, 1, 0.0F, false));
+        HEAD.setRotationPoint(0.0F, 16.0F, -4.0F);
+        HEAD.cubeList.add(new ModelBox(HEAD, 1, 19, -3.0F, -2.0F, -5.0F, 6, 4, 4, 0.0F, false));
+        HEAD.cubeList.add(new ModelBox(HEAD, 24, 7, -1.5F, 0.0F, -6.0F, 3, 2, 1, 0.0F, false));
 
         EAR_RIGHT = new ModelRenderer(this);
-        EAR_RIGHT.setRotationPoint(1.5348F, -9.8735F, -4.6432F);
+        EAR_RIGHT.setRotationPoint(1.5348F, -1.8735F, -1.6432F);
         HEAD.addChild(EAR_RIGHT);
 
 
@@ -92,7 +109,7 @@ public class ModelCaracal extends ModelBase {
         EAR_RIGHT_ROOT.cubeList.add(new ModelBox(EAR_RIGHT_ROOT, 17, 18, -1.0F, -0.5F, -0.5F, 2, 1, 1, 0.0F, false));
 
         EAR_LEFT = new ModelRenderer(this);
-        EAR_LEFT.setRotationPoint(1.5348F, -9.8735F, -4.6432F);
+        EAR_LEFT.setRotationPoint(1.5348F, -1.8735F, -1.6432F);
         HEAD.addChild(EAR_LEFT);
 
 
@@ -107,22 +124,6 @@ public class ModelCaracal extends ModelBase {
         EAR_LEFT.addChild(EAR_LEFT_ROOT);
         setRotationAngle(EAR_LEFT_ROOT, 0.0F, 0.0F, 0.3927F);
         EAR_LEFT_ROOT.cubeList.add(new ModelBox(EAR_LEFT_ROOT, 6, 0, -1.0F, -0.5F, -0.5F, 2, 1, 1, 0.0F, false));
-
-        TAIL = new ModelRenderer(this);
-        TAIL.setRotationPoint(0.0F, 15.0F, 9.0F);
-
-
-        TAIL_TIP = new ModelRenderer(this);
-        TAIL_TIP.setRotationPoint(0.0F, 4.8355F, 2.834F);
-        TAIL.addChild(TAIL_TIP);
-        setRotationAngle(TAIL_TIP, -1.309F, 0.0F, 0.0F);
-        TAIL_TIP.cubeList.add(new ModelBox(TAIL_TIP, 27, 3, -0.4557F, -0.6959F, 0.0335F, 1, 1, 3, 0.0F, false));
-
-        TAIL_ROOT = new ModelRenderer(this);
-        TAIL_ROOT.setRotationPoint(0.0F, 2.1829F, -8.4676F);
-        TAIL.addChild(TAIL_ROOT);
-        setRotationAngle(TAIL_ROOT, -0.9599F, 0.0F, 0.0F);
-        TAIL_ROOT.cubeList.add(new ModelBox(TAIL_ROOT, 24, 0, -0.4557F, -8.3787F, 2.9247F, 1, 1, 6, 0.0F, false));
     }
 
     @Override
@@ -142,14 +143,10 @@ public class ModelCaracal extends ModelBase {
             GlStateManager.scale(0.5F, 0.5F, 0.5F);
             GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
             this.BODY.render(scale);
-            this.LEGS.render(scale);
-            this.TAIL.render(scale);
             GlStateManager.popMatrix();
         } else {
             BODY.render(scale);
-            LEGS.render(scale);
             HEAD.render(scale);
-            TAIL.render(scale);
         }
         if (caracal.isBlue()) {
             GlStateManager.popMatrix();
@@ -165,18 +162,31 @@ public class ModelCaracal extends ModelBase {
     @Override
     public void setLivingAnimations(EntityLivingBase caracal, float limbSwing, float limbSwingAmount, float partialTickTime) {
         EntityCaracal entity = (EntityCaracal) caracal;
-
+        this.HEAD.offsetY = 0.0F;
+        this.HEAD.offsetX = 0.0F;
+        this.BODY.offsetY = 0.0F;
+        this.BODY.offsetX = 0.0F;
+        this.BODY.offsetZ = 0.0F;
+        this.BODY.rotateAngleX = 0F;
+        this.BODY.rotateAngleY = 0F;
+        this.BODY.rotateAngleZ = 0F;
+        this.FRONT_LEFT_LEG.rotateAngleX = 0F;
+        this.FRONT_LEFT_LEG.rotateAngleZ = 0F;
         if (entity.isSitting()) {
-
+            this.HEAD.offsetY = 0.10F;
+            this.HEAD.offsetX = 0.45F;
+            this.BODY.offsetX = 0.3F;
+            this.BODY.offsetY = 0.05F;
+            this.BODY.offsetZ = -0.4F;
+            this.BODY.rotateAngleX = -1.4F;
+            this.BODY.rotateAngleY = -0.5F;
+            this.BODY.rotateAngleZ = (float) (Math.PI / 2);
+            this.FRONT_LEFT_LEG.rotateAngleX = 0.3F;
         } else {
             this.BACK_LEFT_LEG.rotateAngleX = MathHelper.cos(limbSwing) * limbSwingAmount;
             this.BACK_RIGHT_LEG.rotateAngleX = MathHelper.cos(limbSwing + 0.3F) * limbSwingAmount;
             this.FRONT_LEFT_LEG.rotateAngleX = MathHelper.cos(limbSwing + (float) Math.PI + 0.3F) * limbSwingAmount;
             this.FRONT_RIGHT_LEG.rotateAngleX = MathHelper.cos(limbSwing + (float) Math.PI) * limbSwingAmount;
-
-
-            this.TAIL.rotateAngleX = MathHelper.cos(entity.world.getTotalWorldTime() * 0.2F) * 0.1F;
-            this.TAIL_TIP.rotateAngleX = MathHelper.cos(entity.world.getTotalWorldTime() * 0.2F) * 0.1F - 1.309F;
         }
 
         this.EAR_LEFT.rotateAngleZ = -entity.getEarFlopAngle(partialTickTime, true);
@@ -184,6 +194,9 @@ public class ModelCaracal extends ModelBase {
 
         this.EAR_LEFT_TIP.rotateAngleZ = -entity.getEarFlopAngle(partialTickTime, true) * 0.25F;
         this.EAR_RIGHT_TIP.rotateAngleZ = entity.getEarFlopAngle(partialTickTime, false) * 0.25F;
+        this.TAIL.rotateAngleX = MathHelper.cos(entity.world.getTotalWorldTime() * 0.2F) * 0.1F;
+        this.TAIL_TIP.rotateAngleX = MathHelper.cos(entity.world.getTotalWorldTime() * 0.2F) * 0.1F - 1.309F;
+
     }
 
     private enum CaracalState {
