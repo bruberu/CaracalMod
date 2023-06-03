@@ -25,7 +25,7 @@ public class EntityRegistration {
                 .name("caracal")
                 .tracker(80, 3, true)
                 .spawn(EnumCreatureType.CREATURE, 2, 1, 3, EntityCaracal.BIOMES)
-                .egg(0x3d352f, 0xf0ded1).build());
+                .egg(0x9c7b51, 0x3c3227).build());
 
     }
 
