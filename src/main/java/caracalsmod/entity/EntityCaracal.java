@@ -66,7 +66,11 @@ public class EntityCaracal extends EntityTameable {
         this.tasks.addTask(9, new EntityAIMate(this, 0.8D));
         this.tasks.addTask(10, new EntityAIWanderAvoidWater(this, 0.8D, 1.0000001E-5F));
         this.tasks.addTask(11, new EntityAIWatchClosest(this, EntityPlayer.class, 10.0F));
-        this.targetTasks.addTask(1, new EntityAITargetNonTamed(this, EntityChicken.class, false, (Predicate)null));
+        this.targetTasks.addTask(1, new EntityAIOwnerHurtByTarget(this));
+        this.targetTasks.addTask(2, new EntityAIOwnerHurtTarget(this));
+        this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, true, new Class[0]));
+        this.targetTasks.addTask(4, new EntityAIOwnerNearTarget(this, 10.0F));
+        this.targetTasks.addTask(5, new EntityAITargetNonTamed(this, EntityChicken.class, false, null));
     }
 
     @Override
@@ -97,6 +101,7 @@ public class EntityCaracal extends EntityTameable {
         } else {
             this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
         }
+        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(4.0D);
     }
 
     public float getEarFlopAngle(float partialTicks, boolean isLeft) {
@@ -139,7 +144,7 @@ public class EntityCaracal extends EntityTameable {
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
         livingdata = super.onInitialSpawn(difficulty, livingdata);
 
-        if ((this.posX * this.posY % 3) == 0)
+        if (((this.posX * this.posY) % 500) == 17)
             setIsBlue(true);
 
         return livingdata;

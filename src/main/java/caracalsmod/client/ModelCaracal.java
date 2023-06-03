@@ -164,24 +164,27 @@ public class ModelCaracal extends ModelBase {
         EntityCaracal entity = (EntityCaracal) caracal;
         this.HEAD.offsetY = 0.0F;
         this.HEAD.offsetX = 0.0F;
+        this.HEAD.offsetZ = 0.0F;
         this.BODY.offsetY = 0.0F;
         this.BODY.offsetX = 0.0F;
         this.BODY.offsetZ = 0.0F;
         this.BODY.rotateAngleX = 0F;
         this.BODY.rotateAngleY = 0F;
         this.BODY.rotateAngleZ = 0F;
-        this.FRONT_LEFT_LEG.rotateAngleX = 0F;
         this.FRONT_LEFT_LEG.rotateAngleZ = 0F;
+        this.BACK_LEFT_LEG.rotateAngleZ = 0F;
         if (entity.isSitting()) {
-            this.HEAD.offsetY = 0.10F;
+            this.HEAD.offsetY = 0F;
             this.HEAD.offsetX = 0.45F;
+            this.HEAD.offsetZ = 0.15F;
             this.BODY.offsetX = 0.3F;
-            this.BODY.offsetY = 0.05F;
+            this.BODY.offsetY = -0.15F;
             this.BODY.offsetZ = -0.4F;
-            this.BODY.rotateAngleX = -1.4F;
-            this.BODY.rotateAngleY = -0.5F;
+            this.BODY.rotateAngleX = (float) (-Math.PI / 2);
+            this.BODY.rotateAngleY = -0.3F;
             this.BODY.rotateAngleZ = (float) (Math.PI / 2);
-            this.FRONT_LEFT_LEG.rotateAngleX = 0.3F;
+            this.FRONT_LEFT_LEG.rotateAngleZ = -0.45F;
+            this.BACK_LEFT_LEG.rotateAngleZ = -0.45F;
         } else {
             this.BACK_LEFT_LEG.rotateAngleX = MathHelper.cos(limbSwing) * limbSwingAmount;
             this.BACK_RIGHT_LEG.rotateAngleX = MathHelper.cos(limbSwing + 0.3F) * limbSwingAmount;
