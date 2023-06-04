@@ -1,5 +1,6 @@
 package caracalsmod.entity;
 
+import caracalsmod.WTFConfig;
 import caracalsmod.client.CaracalSoundEvents;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.*;
@@ -126,7 +127,7 @@ public class EntityCaracal extends EntityTameable {
         } else {
             this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
         }
-        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(8.0D);
+        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(WTFConfig.caracalAttackDamage);
     }
 
     public float getEarFlopAngle(float partialTicks, boolean isLeft) {
@@ -299,7 +300,7 @@ public class EntityCaracal extends EntityTameable {
         if (this.isEntityInvulnerable(source)) {
             return false;
         } else {
-            if (this.isTamed() && source.getTrueSource() != null && source.getTrueSource() instanceof EntityLivingBase living) {
+            if (!WTFConfig.friendlyFire && this.isTamed() && source.getTrueSource() != null && source.getTrueSource() instanceof EntityLivingBase living) {
                 if (this.isOwner(living) || (this.getOwner() != null && living.isOnSameTeam(this.getOwner()))) {
                     return false; // No friendly fire!
                 }

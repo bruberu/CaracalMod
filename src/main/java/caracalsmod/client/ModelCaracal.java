@@ -158,6 +158,12 @@ public class ModelCaracal extends ModelBase {
     }
 
     @Override
+    public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
+        this.HEAD.rotateAngleX = headPitch * 0.017453292F;
+        this.HEAD.rotateAngleY = netHeadYaw * 0.017453292F;
+    }
+
+    @Override
     public void setLivingAnimations(EntityLivingBase caracal, float limbSwing, float limbSwingAmount, float partialTickTime) {
         EntityCaracal entity = (EntityCaracal) caracal;
         this.HEAD.offsetY = 0.0F;
