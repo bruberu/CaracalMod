@@ -2,10 +2,7 @@ package caracalsmod.entity;
 
 import caracalsmod.client.CaracalSoundEvents;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.IEntityLivingData;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityChicken;
@@ -302,6 +299,11 @@ public class EntityCaracal extends EntityTameable {
         if (this.isEntityInvulnerable(source)) {
             return false;
         } else {
+            if (this.isTamed() && source.getTrueSource() != null && source.getTrueSource() instanceof EntityLivingBase living) {
+                if (this.isOwner(living) || (this.getOwner() != null && living.isOnSameTeam(this.getOwner()))) {
+                    return false; // No friendly fire!
+                }
+            }
             if (this.aiSit != null) {
                 this.aiSit.setSitting(false);
             }
