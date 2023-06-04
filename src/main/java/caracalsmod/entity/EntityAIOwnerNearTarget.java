@@ -36,6 +36,8 @@ public class EntityAIOwnerNearTarget extends EntityAITarget {
     }
 
     public void startExecuting() {
+        if (!tameable.world.isRemote)
+            this.tameable.setSitting(false);
         this.taskOwner.setAttackTarget(this.target);
         super.startExecuting();
     }

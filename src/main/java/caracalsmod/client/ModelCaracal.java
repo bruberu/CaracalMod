@@ -171,18 +171,34 @@ public class ModelCaracal extends ModelBase {
         this.BODY.rotateAngleZ = 0F;
         this.FRONT_LEFT_LEG.rotateAngleZ = 0F;
         this.BACK_LEFT_LEG.rotateAngleZ = 0F;
+        this.FRONT_RIGHT_LEG.rotateAngleZ = 0F;
+        this.BACK_RIGHT_LEG.rotateAngleZ = 0F;
         if (entity.isSitting()) {
-            this.HEAD.offsetY = 0F;
-            this.HEAD.offsetX = 0.45F;
+            int direction = entity.isFloppingRight() ? -1 : 1;
+            if (caracal.isChild()) {
+                this.HEAD.offsetX = 0.25F * direction;
+            } else {
+                this.HEAD.offsetX = 0.45F * direction;
+            }
             this.HEAD.offsetZ = 0.15F;
-            this.BODY.offsetX = 0.3F;
+            this.BODY.offsetX = 0.3F * direction;
             this.BODY.offsetY = -0.15F;
             this.BODY.offsetZ = -0.4F;
             this.BODY.rotateAngleX = (float) (-Math.PI / 2);
-            this.BODY.rotateAngleY = -0.3F;
-            this.BODY.rotateAngleZ = (float) (Math.PI / 2);
-            this.FRONT_LEFT_LEG.rotateAngleZ = -0.45F;
-            this.BACK_LEFT_LEG.rotateAngleZ = -0.45F;
+            this.BODY.rotateAngleY = -0.3F * direction;
+            this.BODY.rotateAngleZ = (float) (Math.PI / 2) * direction;
+            if (entity.isFloppingRight()) {
+                this.FRONT_RIGHT_LEG.rotateAngleZ = 0.45F;
+                this.BACK_RIGHT_LEG.rotateAngleZ = 0.45F;
+            } else {
+                this.FRONT_LEFT_LEG.rotateAngleZ = -0.45F;
+                this.BACK_LEFT_LEG.rotateAngleZ = -0.45F;
+            }
+            this.BACK_LEFT_LEG.rotateAngleX = 0;
+            this.BACK_RIGHT_LEG.rotateAngleX = 0;
+            this.FRONT_LEFT_LEG.rotateAngleX = 0;
+            this.FRONT_RIGHT_LEG.rotateAngleX = 0;
+
         } else {
             this.BACK_LEFT_LEG.rotateAngleX = MathHelper.cos(limbSwing) * limbSwingAmount;
             this.BACK_RIGHT_LEG.rotateAngleX = MathHelper.cos(limbSwing + 0.3F) * limbSwingAmount;

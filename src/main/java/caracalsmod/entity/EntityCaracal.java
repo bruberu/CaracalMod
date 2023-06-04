@@ -1,7 +1,6 @@
 package caracalsmod.entity;
 
 import caracalsmod.client.CaracalSoundEvents;
-import com.google.common.base.Predicate;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
@@ -14,7 +13,6 @@ import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -43,6 +41,7 @@ public class EntityCaracal extends EntityTameable {
     private int earFlopLeftTime = 0;
     private int earFlopRightTime = 0;
     private static final DataParameter<Boolean> IS_BLUE = EntityDataManager.<Boolean>createKey(EntityCaracal.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Boolean> IS_FLOPPING_RIGHT = EntityDataManager.<Boolean>createKey(EntityCaracal.class, DataSerializers.BOOLEAN);
 
 
     public static Biome[] COMMON_BIOMES = {Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.MUTATED_SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, Biomes.MUTATED_JUNGLE_EDGE};
@@ -60,21 +59,22 @@ public class EntityCaracal extends EntityTameable {
     protected void entityInit() {
         super.entityInit();
         this.dataManager.register(IS_BLUE, Boolean.FALSE);
+        this.dataManager.register(IS_FLOPPING_RIGHT, Boolean.FALSE);
     }
 
     protected void initEntityAI() {
         this.aiSit = new EntityAISit(this);
         this.aiTempt = new EntityAITempt(this, 0.6D, true, TAME_ITEMS);
         this.tasks.addTask(1, new EntityAISwimming(this));
-        this.tasks.addTask(2, this.aiSit);
-        this.tasks.addTask(3, this.aiTempt);
-        this.tasks.addTask(5, new EntityAIFollowOwner(this, 1.0D, 10.0F, 5.0F));
-        this.tasks.addTask(6, new EntityAICaracalSit(this, 0.8D));
-        this.tasks.addTask(7, new EntityAILeapAtTarget(this, 0.3F));
-        this.tasks.addTask(8, new EntityAIOcelotAttack(this));
-        this.tasks.addTask(9, new EntityAIMate(this, 0.8D));
-        this.tasks.addTask(10, new EntityAIWanderAvoidWater(this, 0.8D, 1.0000001E-5F));
-        this.tasks.addTask(11, new EntityAIWatchClosest(this, EntityPlayer.class, 10.0F));
+        this.tasks.addTask(2, new EntityAILeapAtTarget(this, 0.3F));
+        this.tasks.addTask(3, new EntityAIOcelotAttack(this));
+        this.tasks.addTask(4, this.aiSit);
+        this.tasks.addTask(5, this.aiTempt);
+        this.tasks.addTask(6, new EntityAIFollowOwner(this, 1.0D, 10.0F, 5.0F));
+        this.tasks.addTask(7, new EntityAICaracalSit(this, 0.8D));
+        this.tasks.addTask(8, new EntityAIMate(this, 0.8D));
+        this.tasks.addTask(9, new EntityAIWanderAvoidWater(this, 0.8D, 1.0000001E-5F));
+        this.tasks.addTask(10, new EntityAIWatchClosest(this, EntityPlayer.class, 10.0F));
         this.targetTasks.addTask(1, new EntityAIOwnerHurtByTarget(this));
         this.targetTasks.addTask(2, new EntityAIOwnerHurtTarget(this));
         this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, true, new Class[0]));
@@ -158,6 +158,7 @@ public class EntityCaracal extends EntityTameable {
     public void writeEntityToNBT(NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
         compound.setBoolean("isBlue", isBlue());
+        compound.setBoolean("isFloppingRight", isFloppingRight());
     }
 
     /**
@@ -166,6 +167,7 @@ public class EntityCaracal extends EntityTameable {
     public void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
         setIsBlue(compound.getBoolean("isBlue"));
+        setIsFloppingRight(compound.getBoolean("isFloppingRight"));
     }
 
     @javax.annotation.Nullable
@@ -186,6 +188,15 @@ public class EntityCaracal extends EntityTameable {
         this.dataManager.set(IS_BLUE, isBlue);
     }
 
+    public boolean isFloppingRight() {
+        return this.dataManager.get(IS_FLOPPING_RIGHT);
+    }
+
+    public void setIsFloppingRight(boolean isFloppingRight) {
+        this.dataManager.set(IS_FLOPPING_RIGHT, isFloppingRight);
+    }
+
+
     public boolean canMateWith(EntityAnimal otherAnimal) {
         if (otherAnimal == this) {
             return false;
@@ -194,7 +205,6 @@ public class EntityCaracal extends EntityTameable {
         } else if (!(otherAnimal instanceof EntityCaracal caracal)) {
             return false;
         } else {
-
             if (!caracal.isTamed()) {
                 return false;
             } else {
@@ -213,7 +223,7 @@ public class EntityCaracal extends EntityTameable {
 
     protected void setupTamedAI() {
         if (this.avoidEntity == null) {
-            this.avoidEntity = new EntityAIAvoidEntity<EntityPlayer>(this, EntityPlayer.class, 16.0F, 0.8D, 1.33D);
+            this.avoidEntity = new EntityAIAvoidEntity<>(this, EntityPlayer.class, 16.0F, 0.8D, 1.33D);
         }
 
         this.tasks.removeTask(this.avoidEntity);
@@ -308,6 +318,7 @@ public class EntityCaracal extends EntityTameable {
                 if (!this.isBreedingItem(itemstack)) {
                     if (!this.world.isRemote) { // Can't combine with the previous line
                         this.aiSit.setSitting(!this.isSitting());
+                        this.setIsFloppingRight(this.world.rand.nextBoolean());
                     }
                 } else {
                     if (!player.capabilities.isCreativeMode) {
@@ -318,7 +329,7 @@ public class EntityCaracal extends EntityTameable {
                     }
                 }
             }
-        } else if ((this.aiTempt == null || this.aiTempt.isRunning()) && TAME_ITEMS.contains(itemstack.getItem()) && player.getDistanceSq(this) < 9.0D) {
+        } else if ((this.aiTempt == null || !this.aiTempt.isRunning()) && TAME_ITEMS.contains(itemstack.getItem()) && player.getDistanceSq(this) < 9.0D) {
             if (!player.capabilities.isCreativeMode) {
                 itemstack.shrink(1);
             }
@@ -328,6 +339,7 @@ public class EntityCaracal extends EntityTameable {
                     this.setTamedBy(player);
                     this.playTameEffect(true);
                     this.aiSit.setSitting(true);
+                    this.setIsFloppingRight(this.world.rand.nextBoolean());
                     this.world.setEntityState(this, (byte) 7);
                 } else {
                     this.playTameEffect(false);
