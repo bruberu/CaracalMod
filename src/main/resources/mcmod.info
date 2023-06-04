@@ -1,12 +1,12 @@
 [{
-    "modid": "mymodid",
-    "name": "MyMod",
-    "description": "An example mod for Minecraft 1.12.2 with Forge",
+    "modid": "caracalsmod",
+    "name": "World-Class Trustworthy Floppas",
+    "description": "Adds caracals to Minecraft on 1.12.2.",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "logoFile": "",
     "url": "",
-    "authorList": [],
-    "credits": "",
+    "authorList": ["bruberu"],
+    "credits": "Thanks to Bloody Reaper for helping with the model!",
     "dependencies": []
 }]

@@ -1,6 +1,8 @@
 package caracalsmod.entity;
 
+import caracalsmod.client.CaracalSoundEvents;
 import com.google.common.base.Predicate;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.IEntityLivingData;
@@ -13,6 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -27,11 +30,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 
 public class EntityCaracal extends EntityTameable {
 
     private EntityAIAvoidEntity<EntityPlayer> avoidEntity;
-    /** The tempt AI task for this mob, used to prevent taming while it is fleeing. */
+    /**
+     * The tempt AI task for this mob, used to prevent taming while it is fleeing.
+     */
     private EntityAITempt aiTempt;
 
     private int earFlopLeftTime = 0;
@@ -39,7 +45,11 @@ public class EntityCaracal extends EntityTameable {
     private static final DataParameter<Boolean> IS_BLUE = EntityDataManager.<Boolean>createKey(EntityCaracal.class, DataSerializers.BOOLEAN);
 
 
-    public static Biome[] BIOMES = {Biomes.SWAMPLAND, Biomes.BEACH, Biomes.COLD_BEACH, Biomes.FOREST, Biomes.PLAINS, Biomes.ROOFED_FOREST, Biomes.EXTREME_HILLS};
+    public static Biome[] COMMON_BIOMES = {Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.MUTATED_SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, Biomes.MUTATED_JUNGLE_EDGE};
+    public static Biome[] RARE_BIOMES = {Biomes.FOREST, Biomes.JUNGLE_EDGE};
+
+
+    public static Set<Item> TAME_ITEMS = new ObjectOpenHashSet<>(new Item[]{Items.FISH, Items.CHICKEN, Items.RABBIT});
 
     public EntityCaracal(World worldIn) {
         super(worldIn);
@@ -52,10 +62,9 @@ public class EntityCaracal extends EntityTameable {
         this.dataManager.register(IS_BLUE, Boolean.FALSE);
     }
 
-    protected void initEntityAI()
-    {
+    protected void initEntityAI() {
         this.aiSit = new EntityAISit(this);
-        this.aiTempt = new EntityAITempt(this, 0.6D, Items.FISH, true);
+        this.aiTempt = new EntityAITempt(this, 0.6D, true, TAME_ITEMS);
         this.tasks.addTask(1, new EntityAISwimming(this));
         this.tasks.addTask(2, this.aiSit);
         this.tasks.addTask(3, this.aiTempt);
@@ -93,6 +102,25 @@ public class EntityCaracal extends EntityTameable {
     }
 
     @Override
+    public void onEntityUpdate() {
+        super.onEntityUpdate();
+        if (this.world.getWorldTime() % 300 == 0) {
+            this.heal(0.5F);
+        }
+    }
+
+    public void setTamed(boolean tamed) {
+        super.setTamed(tamed);
+
+        if (tamed) {
+            this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(40.0D);
+        } else {
+            this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
+        }
+    }
+
+
+    @Override
     protected void applyEntityAttributes() {
         super.applyEntityAttributes();
         this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.4);
@@ -101,7 +129,7 @@ public class EntityCaracal extends EntityTameable {
         } else {
             this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
         }
-        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(4.0D);
+        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(8.0D);
     }
 
     public float getEarFlopAngle(float partialTicks, boolean isLeft) {
@@ -194,30 +222,22 @@ public class EntityCaracal extends EntityTameable {
             this.tasks.addTask(4, this.avoidEntity);
         }
     }
-    public void updateAITasks()
-    {
-        if (this.getMoveHelper().isUpdating())
-        {
+
+    public void updateAITasks() {
+        if (this.getMoveHelper().isUpdating()) {
             double d0 = this.getMoveHelper().getSpeed();
 
-            if (d0 == 0.6D)
-            {
+            if (d0 == 0.6D) {
                 this.setSneaking(true);
                 this.setSprinting(false);
-            }
-            else if (d0 == 1.33D)
-            {
+            } else if (d0 == 1.33D) {
                 this.setSneaking(false);
                 this.setSprinting(true);
-            }
-            else
-            {
+            } else {
                 this.setSneaking(false);
                 this.setSprinting(false);
             }
-        }
-        else
-        {
+        } else {
             this.setSneaking(false);
             this.setSprinting(false);
         }
@@ -226,65 +246,53 @@ public class EntityCaracal extends EntityTameable {
     /**
      * Determines if an entity can be despawned, used on idle far away entities
      */
-    protected boolean canDespawn()
-    {
+    protected boolean canDespawn() {
         return !this.isTamed() && this.ticksExisted > 2400;
     }
-    public void fall(float distance, float damageMultiplier)
-    {
+
+    public void fall(float distance, float damageMultiplier) {
     }
 
     @Nullable
-    protected SoundEvent getAmbientSound()
-    {
-        if (this.isTamed())
-        {
-            if (this.isInLove())
-            {
-                return SoundEvents.ENTITY_CAT_PURR;
+    protected SoundEvent getAmbientSound() {
+        if (this.isTamed()) {
+            if (this.isInLove()) {
+                return CaracalSoundEvents.CARACAL_PURR;
+            } else {
+                if (this.getAttackTarget() != null) {
+                    return this.rand.nextInt(4) == 0 ? CaracalSoundEvents.CARACAL_HISS : CaracalSoundEvents.CARACAL_GROWL;
+                }
+                return this.rand.nextInt(4) == 0 ? CaracalSoundEvents.CARACAL_PURR : CaracalSoundEvents.CARACAL_MEOW;
             }
-            else
-            {
-                return this.rand.nextInt(4) == 0 ? SoundEvents.ENTITY_CAT_PURREOW : SoundEvents.ENTITY_CAT_AMBIENT;
-            }
+        } else {
+            return this.rand.nextInt(4) == 0 ? CaracalSoundEvents.CARACAL_MEOW : null;
         }
-        else
-        {
-            return null;
-        }
-    }
-    protected SoundEvent getHurtSound(DamageSource damageSourceIn)
-    {
-        return SoundEvents.ENTITY_CAT_HURT;
     }
 
-    protected SoundEvent getDeathSound()
-    {
-        return SoundEvents.ENTITY_CAT_DEATH;
+    protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
+        return this.rand.nextInt(4) == 0 ? CaracalSoundEvents.CARACAL_HISS : CaracalSoundEvents.CARACAL_GROWL;
     }
-    protected float getSoundVolume()
-    {
+
+    protected SoundEvent getDeathSound() {
+        return CaracalSoundEvents.CARACAL_HISS;
+    }
+
+    protected float getSoundVolume() {
         return 0.4F;
     }
 
-    public boolean attackEntityAsMob(Entity entityIn)
-    {
+    public boolean attackEntityAsMob(Entity entityIn) {
         return entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), 3.0F);
     }
 
     /**
      * Called when the entity is attacked.
      */
-    public boolean attackEntityFrom(DamageSource source, float amount)
-    {
-         if (this.isEntityInvulnerable(source))
-        {
+    public boolean attackEntityFrom(DamageSource source, float amount) {
+        if (this.isEntityInvulnerable(source)) {
             return false;
-        }
-        else
-        {
-            if (this.aiSit != null)
-            {
+        } else {
+            if (this.aiSit != null) {
                 this.aiSit.setSitting(false);
             }
 
@@ -292,37 +300,38 @@ public class EntityCaracal extends EntityTameable {
         }
     }
 
-    public boolean processInteract(EntityPlayer player, EnumHand hand)
-    {
+    public boolean processInteract(EntityPlayer player, EnumHand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
 
-        if (this.isTamed())
-        {
-            if (this.isOwner(player) && !this.world.isRemote && !this.isBreedingItem(itemstack))
-            {
-                this.aiSit.setSitting(!this.isSitting());
+        if (this.isTamed()) {
+            if (this.isOwner(player)) {
+                if (!this.isBreedingItem(itemstack)) {
+                    if (!this.world.isRemote) { // Can't combine with the previous line
+                        this.aiSit.setSitting(!this.isSitting());
+                    }
+                } else {
+                    if (!player.capabilities.isCreativeMode) {
+                        itemstack.shrink(1);
+                    }
+                    if (!this.world.isRemote) {
+                        this.heal(2.0F);
+                    }
+                }
             }
-        }
-        else if ((this.aiTempt == null || this.aiTempt.isRunning()) && itemstack.getItem() == Items.FISH && player.getDistanceSq(this) < 9.0D)
-        {
-            if (!player.capabilities.isCreativeMode)
-            {
+        } else if ((this.aiTempt == null || this.aiTempt.isRunning()) && TAME_ITEMS.contains(itemstack.getItem()) && player.getDistanceSq(this) < 9.0D) {
+            if (!player.capabilities.isCreativeMode) {
                 itemstack.shrink(1);
             }
 
-            if (!this.world.isRemote)
-            {
-                if (this.rand.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player))
-                {
+            if (!this.world.isRemote) {
+                if (this.rand.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player)) {
                     this.setTamedBy(player);
                     this.playTameEffect(true);
                     this.aiSit.setSitting(true);
-                    this.world.setEntityState(this, (byte)7);
-                }
-                else
-                {
+                    this.world.setEntityState(this, (byte) 7);
+                } else {
                     this.playTameEffect(false);
-                    this.world.setEntityState(this, (byte)6);
+                    this.world.setEntityState(this, (byte) 6);
                 }
             }
 
@@ -330,5 +339,10 @@ public class EntityCaracal extends EntityTameable {
         }
 
         return super.processInteract(player, hand);
+    }
+
+    @Override
+    public boolean isBreedingItem(ItemStack stack) {
+        return TAME_ITEMS.contains(stack.getItem());
     }
 }

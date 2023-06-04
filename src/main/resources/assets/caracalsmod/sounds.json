@@ -1,0 +1,43 @@
+{
+  "caracal.meow": {
+    "subtitle": "caracalsmod.sound.meow",
+    "category": "neutral",
+    "sounds": [
+      "caracalsmod:meow1",
+      "caracalsmod:meow2",
+      "caracalsmod:meow3",
+      "caracalsmod:meow4",
+      "caracalsmod:meow5",
+      "caracalsmod:meow6",
+      "caracalsmod:meow7"
+    ]
+  },
+  "caracal.purr": {
+    "subtitle": "caracalsmod.sound.purr",
+    "category": "neutral",
+    "sounds": [
+      "caracalsmod:purr1",
+      "caracalsmod:purr2",
+      "caracalsmod:purr3",
+      "caracalsmod:purr4"
+    ]
+  },
+  "caracal.hiss": {
+    "subtitle": "caracalsmod.sound.hiss",
+    "category": "hostile",
+    "sounds": [
+      "caracalsmod:hiss1",
+      "caracalsmod:hiss2",
+      "caracalsmod:hiss3",
+      "caracalsmod:hiss4"
+    ]
+  },
+  "caracal.growl": {
+    "subtitle": "caracalsmod.sound.growl",
+    "category": "hostile",
+    "sounds": [
+      "caracalsmod:growl1",
+      "caracalsmod:growl2"
+    ]
+  }
+}

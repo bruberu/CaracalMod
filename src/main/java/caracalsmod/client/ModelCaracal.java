@@ -15,8 +15,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
 public class ModelCaracal extends ModelBase {
-    private CaracalState state = CaracalState.IDLE;
-
     private final ModelRenderer BODY;
     private final ModelRenderer LEGS;
     private final ModelRenderer FRONT_LEFT_LEG;
@@ -199,13 +197,5 @@ public class ModelCaracal extends ModelBase {
         this.EAR_RIGHT_TIP.rotateAngleZ = entity.getEarFlopAngle(partialTickTime, false) * 0.25F;
         this.TAIL.rotateAngleX = MathHelper.cos(entity.world.getTotalWorldTime() * 0.2F) * 0.1F;
         this.TAIL_TIP.rotateAngleX = MathHelper.cos(entity.world.getTotalWorldTime() * 0.2F) * 0.1F - 1.309F;
-
-    }
-
-    private enum CaracalState {
-        IDLE,
-        WALK,
-        SPRINT,
-        SITTING
     }
 }

@@ -1,5 +1,6 @@
 package caracalsmod;
 
+import caracalsmod.client.CaracalSoundEvents;
 import caracalsmod.entity.EntityRegistration;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -31,6 +32,7 @@ public class WorldClassTrustworthyFloppas {
         if (event.getSide().isClient()) {
             EntityRegistration.registerRenders();
         }
+        CaracalSoundEvents.registerSounds();
     }
 
     @SubscribeEvent

@@ -1,2 +1,6 @@
 entity.caracal.name=Caracal
 entity.tamed_caracal.name=Floppa
+caracalsmod.sound.purr=Caracal purrs
+caracalsmod.sound.meow=Caracal meows
+caracalsmod.sound.hiss=Caracal hisses
+caracalsmod.sound.growl=Caracal growls

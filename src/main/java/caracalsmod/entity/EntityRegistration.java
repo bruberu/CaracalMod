@@ -24,7 +24,8 @@ public class EntityRegistration {
                 .id(new ResourceLocation(Tags.MODID, "caracal"), 0)
                 .name("caracal")
                 .tracker(80, 3, true)
-                .spawn(EnumCreatureType.CREATURE, 2, 1, 3, EntityCaracal.BIOMES)
+                .spawn(EnumCreatureType.CREATURE, 6, 1, 3, EntityCaracal.COMMON_BIOMES)
+                .spawn(EnumCreatureType.CREATURE, 1, 1, 2, EntityCaracal.RARE_BIOMES)
                 .egg(0x9c7b51, 0x3c3227).build());
 
     }
