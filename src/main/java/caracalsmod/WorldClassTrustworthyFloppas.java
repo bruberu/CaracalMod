@@ -1,9 +1,12 @@
 package caracalsmod;
 
+import caracalsmod.blocks.WTFBlocks;
 import caracalsmod.client.CaracalSoundEvents;
 import caracalsmod.entity.EntityRegistration;
 import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -20,7 +23,12 @@ import org.apache.logging.log4j.Logger;
 
 @Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.12.2]")
 public class WorldClassTrustworthyFloppas {
-
+    public static final CreativeTabs WTF_TAB = new CreativeTabs(Tags.MODID) {
+        @Override
+        public ItemStack createIcon() {
+            return new ItemStack(WTFBlocks.CHISELED_SANDSTONE.getItemBlock().get());
+        }
+    };
     public static final Logger LOGGER = LogManager.getLogger(Tags.MODID);
 
     @EventHandler
