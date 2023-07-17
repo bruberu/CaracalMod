@@ -1,8 +1,9 @@
-//version: 1685933053
+//version: 1689212657
 /*
  * DO NOT CHANGE THIS FILE!
  * Also, you may replace this file at any time if there is an update available.
  * Please check https://github.com/GregTechCEu/Buildscripts/blob/master/build.gradle for updates.
+ * You can also run ./gradlew updateBuildScript to update your buildscript.
  */
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
@@ -22,9 +23,9 @@ plugins {
     id 'eclipse'
     id 'maven-publish'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.7'
-    id 'com.gtnewhorizons.retrofuturagradle' version '1.3.+'
-    id 'net.darkhax.curseforgegradle' version '1.0.+' apply false
-    id 'com.modrinth.minotaur' version '2.7.+' apply false
+    id 'com.gtnewhorizons.retrofuturagradle' version '1.3.20'
+    id 'net.darkhax.curseforgegradle' version '1.0.14' apply false
+    id 'com.modrinth.minotaur' version '2.8.0' apply false
     id 'com.diffplug.spotless' version '6.13.0' apply false
     id 'com.palantir.git-version' version '3.0.0' apply false
     id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
@@ -53,6 +54,7 @@ checkPropertyExists("containsMixinsAndOrCoreModOnly")
 
 // Optional properties: we can assume some default behavior if these are missing
 propertyDefaultIfUnset("modVersion", "")
+propertyDefaultIfUnset("includeMCVersionJar", false)
 propertyDefaultIfUnset("autoUpdateBuildScript", false)
 propertyDefaultIfUnset("modArchivesBaseName", project.modId)
 propertyDefaultIfUnsetWithEnvVar("developmentEnvironmentUserName", "Developer", "DEV_USERNAME")
@@ -67,11 +69,12 @@ propertyDefaultIfUnset("forceEnableMixins", false)
 propertyDefaultIfUnset("usesShadowedDependencies", false)
 propertyDefaultIfUnset("minimizeShadowedDependencies", true)
 propertyDefaultIfUnset("relocateShadowedDependencies", true)
+propertyDefaultIfUnset("separateRunDirectories", false)
 propertyDefaultIfUnsetWithEnvVar("modrinthProjectId", "", "MODRINTH_PROJECT_ID")
 propertyDefaultIfUnset("modrinthRelations", "")
 propertyDefaultIfUnsetWithEnvVar("curseForgeProjectId", "", "CURSEFORGE_PROJECT_ID")
 propertyDefaultIfUnset("curseForgeRelations", "")
-propertyDefaultIfUnset("releaseType", "release")
+propertyDefaultIfUnsetWithEnvVar("releaseType", "release", "RELEASE_TYPE")
 propertyDefaultIfUnset("generateDefaultChangelog", false)
 propertyDefaultIfUnset("customMavenPublishUrl", "")
 propertyDefaultIfUnset("enableModernJavaSyntax", false)
@@ -242,6 +245,14 @@ tasks.withType(ScalaCompile).configureEach {
 }
 
 
+// Allow others using this buildscript to have custom gradle code run
+if (getFile('addon.gradle').exists()) {
+    apply from: 'addon.gradle'
+} else if (getFile('addon.gradle.kts').exists()) {
+    apply from: 'addon.gradle.kts'
+}
+
+
 // Configure Minecraft
 
 // Try to gather mod version from git tags if version is not manually specified
@@ -257,7 +268,13 @@ if (!modVersion) {
     }
 }
 
-version = modVersion
+if (includeMCVersionJar.toBoolean()){
+    version = "${minecraftVersion}-${modVersion}"
+}
+else {
+    version = modVersion
+}
+
 group = modGroup
 archivesBaseName = modArchivesBaseName
 
@@ -300,12 +317,6 @@ tasks.named('processIdeaSettings').configure {
 }
 
 
-// Allow others using this buildscript to have custom gradle code run
-if (getFile('addon.gradle').exists()) {
-    apply from: 'addon.gradle'
-}
-
-
 // Repositories
 
 // Allow unsafe repos but warn
@@ -321,6 +332,8 @@ repositories.configureEach { repo ->
 // Allow adding custom repositories to the buildscript
 if (getFile('repositories.gradle').exists()) {
     apply from: 'repositories.gradle'
+} else if (getFile('repositories.gradle.kts').exists()) {
+    apply from: 'repositories.gradle.kts'
 }
 
 repositories {
@@ -331,6 +344,7 @@ repositories {
                 maven {
                     name = 'Curse Maven'
                     url = 'https://www.cursemaven.com'
+                    // url = 'https://beta.cursemaven.com'
                 }
             }
             filter {
@@ -359,10 +373,6 @@ repositories {
         }
     }
     if (usesMixins.toBoolean() || forceEnableMixins.toBoolean()) {
-        maven {
-            name 'Sponge Maven'
-            url 'https://repo.spongepowered.org/maven'
-        }
         // need to add this here even if we did not above
         if (!includeWellKnownRepositories.toBoolean()) {
             maven {
@@ -392,11 +402,17 @@ configurations {
 
 dependencies {
     if (usesMixins.toBoolean() || forceEnableMixins.toBoolean()) {
-        implementation 'zone.rong:mixinbooter:7.0'
-        api('org.spongepowered:mixin:0.8.3') {
+        implementation 'zone.rong:mixinbooter:8.3'
+        String mixin = 'zone.rong:mixinbooter:8.3'
+        if (usesMixins.toBoolean()) {
+            mixin = modUtils.enableMixins(mixin, "mixins.${modId}.refmap.json")
+        }
+
+        api (mixin) {
             transitive = false
         }
-        annotationProcessor('org.spongepowered:mixin:0.8.3') {
+
+        annotationProcessor(mixin) {
             transitive = false
         }
 
@@ -442,6 +458,8 @@ dependencies {
 
 if (getFile('dependencies.gradle').exists()) {
     apply from: 'dependencies.gradle'
+} else if (getFile('dependencies.gradle.kts').exists()) {
+    apply from: 'dependencies.gradle.kts'
 }
 
 
@@ -581,6 +599,17 @@ jar {
     }
 }
 
+// Configure default run tasks
+if (separateRunDirectories.toBoolean()) {
+    runClient {
+        workingDir = file('run/client')
+    }
+
+    runServer {
+        workingDir = file('run/server')
+    }
+}
+
 // Create API library jar
 tasks.register('apiJar', Jar) {
     archiveClassifier.set 'api'
@@ -672,21 +701,31 @@ idea {
     project {
         settings {
             runConfigurations {
-                '1. Run Client'(Gradle) {
+                '1. Setup Workspace'(Gradle) {
+                    taskNames = ['setupDecompWorkspace']
+                }
+                '2. Run Client'(Gradle) {
                     taskNames = ['runClient']
                 }
-                '2. Run Server'(Gradle) {
+                '3. Run Server'(Gradle) {
                     taskNames = ['runServer']
                 }
-                '3. Run Obfuscated Client'(Gradle) {
+                '4. Run Obfuscated Client'(Gradle) {
                     taskNames = ['runObfClient']
                 }
-                '4. Run Obfuscated Server'(Gradle) {
+                '5. Run Obfuscated Server'(Gradle) {
                     taskNames = ['runObfServer']
                 }
                 if (enableSpotless.toBoolean()) {
-                    "5. Apply Spotless"(Gradle) {
+                    '6. Apply Spotless'(Gradle) {
                         taskNames = ["spotlessApply"]
+                    }
+                    '7. Build Jars'(Gradle) {
+                        taskNames = ['build']
+                    }
+                } else {
+                    '6. Build Jars'(Gradle) {
+                        taskNames = ['build']
                     }
                 }
                 'Update Buildscript'(Gradle) {
@@ -712,7 +751,8 @@ idea {
 
 
 // Deployment
-
+def final modrinthApiKey = providers.environmentVariable('MODRINTH_API_KEY')
+def final cfApiKey = providers.environmentVariable('CURSEFORGE_API_KEY')
 final boolean isCIEnv = providers.environmentVariable('CI').getOrElse('false').toBoolean()
 
 if (isCIEnv || deploymentDebug.toBoolean()) {
@@ -749,58 +789,62 @@ tasks.register('generateChangelog') {
             changelog = "Changes since ${lastTag}:\n${{("\n" + changelog).replaceAll("\n", "\n* ")}}"
         }
         def f = getFile('build/changelog.md')
-        f.write(changelog ?: 'There have been no changes.', 'UTF-8')
+        changelog = changelog ?: 'There have been no changes.'
+        f.write(changelog, 'UTF-8')
+
+        // Set changelog for Modrinth
+        if (modrinthApiKey.isPresent() || deploymentDebug.toBoolean()) {
+            modrinth.changelog.set(changelog)
+        }
     }
 }
 
-// Curseforge
-def final cfApiKey = providers.environmentVariable('CURSEFORGE_API_KEY')
 if (cfApiKey.isPresent() || deploymentDebug.toBoolean()) {
     apply plugin: 'net.darkhax.curseforgegradle'
     //noinspection UnnecessaryQualifiedReference
     tasks.register('curseforge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-        apiToken = cfApiKey.getOrElse('debug_token')
-
-        def mainFile = upload(curseForgeProjectId, reobfJar)
-        def changelogFile = getChangelog()
-        def changelogRaw = changelogFile.exists() ? changelogFile.getText('UTF-8') : ""
-
-        mainFile.displayName = "${modName}: ${modVersion}"
-        mainFile.releaseType = getReleaseType()
-        mainFile.changelog = changelogRaw
-        mainFile.changelogType = 'markdown'
-        mainFile.addModLoader 'Forge'
-        mainFile.addJavaVersion "Java 8"
-        mainFile.addGameVersion minecraftVersion
-
-        if (curseForgeRelations.size() != 0) {
-            String[] deps = curseForgeRelations.split(';')
-            deps.each { dep ->
-                if (dep.size() == 0) {
-                    return
-                }
-                String[] parts = dep.split(':')
-                String type = parts[0], slug = parts[1]
-                if(!(type in ['requiredDependency', 'embeddedLibrary', 'optionalDependency', 'tool', 'incompatible'])) {
-                    throw new Exception('Invalid Curseforge dependency type: ' + type)
-                }
-                mainFile.addRelation(slug, type)
-            }
-        }
-
-        for (artifact in getSecondaryArtifacts()) {
-            def additionalFile = mainFile.withAdditionalFile(artifact)
-            additionalFile.changelog = changelogRaw
-        }
         disableVersionDetection()
         debugMode = deploymentDebug.toBoolean()
+        apiToken = cfApiKey.getOrElse('debug_token')
+
+        doFirst {
+            def mainFile = upload(curseForgeProjectId, reobfJar)
+            def changelogFile = getChangelog()
+            def changelogRaw = changelogFile.exists() ? changelogFile.getText('UTF-8') : ""
+
+            mainFile.displayName = "${modName}: ${modVersion}"
+            mainFile.releaseType = getReleaseType()
+            mainFile.changelog = changelogRaw
+            mainFile.changelogType = 'markdown'
+            mainFile.addModLoader 'Forge'
+            mainFile.addJavaVersion "Java 8"
+            mainFile.addGameVersion minecraftVersion
+
+            if (curseForgeRelations.size() != 0) {
+                String[] deps = curseForgeRelations.split(';')
+                deps.each { dep ->
+                    if (dep.size() == 0) {
+                        return
+                    }
+                    String[] parts = dep.split(':')
+                    String type = parts[0], slug = parts[1]
+                    if (!(type in ['requiredDependency', 'embeddedLibrary', 'optionalDependency', 'tool', 'incompatible'])) {
+                        throw new Exception('Invalid Curseforge dependency type: ' + type)
+                    }
+                    mainFile.addRelation(slug, type)
+                }
+            }
+
+            for (artifact in getSecondaryArtifacts()) {
+                def additionalFile = mainFile.withAdditionalFile(artifact)
+                additionalFile.changelog = changelogRaw
+            }
+        }
     }
     tasks.curseforge.dependsOn(build)
     tasks.curseforge.dependsOn('generateChangelog')
 }
 
-// Modrinth
-def final modrinthApiKey = providers.environmentVariable('MODRINTH_API_KEY')
 if (modrinthApiKey.isPresent() || deploymentDebug.toBoolean()) {
     apply plugin: 'com.modrinth.minotaur'
     def final changelogFile = getChangelog()

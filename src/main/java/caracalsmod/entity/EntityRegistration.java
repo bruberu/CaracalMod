@@ -21,6 +21,7 @@ public class EntityRegistration {
     @SubscribeEvent
     public static void onEntityRegistry(RegistryEvent.Register<EntityEntry> event)
     {
+        EntityCaracal.initBiomes();
         event.getRegistry().register(EntityEntryBuilder.create().entity(EntityCaracal.class)
                 .id(new ResourceLocation(Tags.MODID, "caracal"), 0)
                 .name("caracal")
