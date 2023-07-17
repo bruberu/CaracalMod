@@ -57,8 +57,8 @@ public class EntityCaracal extends EntityTameable {
     public static Set<Item> TAME_ITEMS = new ObjectOpenHashSet<>(new Item[]{Items.FISH, Items.CHICKEN, Items.RABBIT});
 
     public static void initBiomes() {
-        ArrayList<Biome> commonBiomes = new ArrayList<Biome>();
-        ArrayList<Biome> rareBiomes = new ArrayList<Biome>();
+        ArrayList<Biome> commonBiomes = new ArrayList<>();
+        ArrayList<Biome> rareBiomes = new ArrayList<>();
         for (Biome biome : Biome.REGISTRY) {
             if (biome.getBiomeName().equals("Beach")) continue;
             float defaultTemp = biome.getDefaultTemperature();
