@@ -3,6 +3,7 @@ package caracalsmod.entity;
 import caracalsmod.WTFConfig;
 import caracalsmod.client.CaracalSoundEvents;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import java.util.ArrayList;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
 import net.minecraft.entity.passive.EntityAnimal;
@@ -41,12 +42,38 @@ public class EntityCaracal extends EntityTameable {
     private static final DataParameter<Boolean> IS_BLUE = EntityDataManager.<Boolean>createKey(EntityCaracal.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> IS_FLOPPING_RIGHT = EntityDataManager.<Boolean>createKey(EntityCaracal.class, DataSerializers.BOOLEAN);
 
+    //Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.MUTATED_SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, Biomes.MUTATED_JUNGLE_EDGE
+    public static Biome[] COMMON_BIOMES;
+    //Biomes.FOREST, Biomes.JUNGLE_EDGE
+    public static Biome[] RARE_BIOMES;
 
-    public static Biome[] COMMON_BIOMES = {Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.MUTATED_SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, Biomes.MUTATED_JUNGLE_EDGE};
-    public static Biome[] RARE_BIOMES = {Biomes.FOREST, Biomes.JUNGLE_EDGE};
+    public static final float BIOME_AVG_TEMP = 1.05F;
+    public static final float BIOME_AVG_RAIN = 0.3F;
+    public static final float COMMON_TEMP_RAIN_RADIUS = 0.4F;
+    public static final float RARE_TEMP_RAIN_RADIUS = 0.55F;
+
 
 
     public static Set<Item> TAME_ITEMS = new ObjectOpenHashSet<>(new Item[]{Items.FISH, Items.CHICKEN, Items.RABBIT});
+
+    public static void initBiomes() {
+        ArrayList<Biome> commonBiomes = new ArrayList<Biome>();
+        ArrayList<Biome> rareBiomes = new ArrayList<Biome>();
+        for (Biome biome : Biome.REGISTRY) {
+            if (biome.getBiomeName().equals("Beach")) continue;
+            float defaultTemp = biome.getDefaultTemperature();
+            float defaultRain = biome.getRainfall();
+            float variance = (float) Math.sqrt(Math.pow(BIOME_AVG_TEMP - defaultTemp, 2) + Math.pow((BIOME_AVG_RAIN - defaultRain), 2)) - 0.01F;
+            if (COMMON_TEMP_RAIN_RADIUS < variance && variance <= RARE_TEMP_RAIN_RADIUS) {
+                rareBiomes.add(biome);
+            } else if (variance <= COMMON_TEMP_RAIN_RADIUS) {
+                commonBiomes.add(biome);
+            }
+        }
+
+        COMMON_BIOMES = commonBiomes.toArray(new Biome[0]);
+        RARE_BIOMES = rareBiomes.toArray(new Biome[0]);
+    }
 
     public EntityCaracal(World worldIn) {
         super(worldIn);
