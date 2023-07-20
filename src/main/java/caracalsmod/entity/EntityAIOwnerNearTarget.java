@@ -25,7 +25,7 @@ public class EntityAIOwnerNearTarget extends EntityAITarget {
 
     @Override
     public boolean shouldExecute() {
-        if (!this.tameable.isTamed() || this.target != null)
+        if (!this.tameable.isTamed() || this.target != null || this.tameable.getOwner() != null)
             return false;
         EntityLiving closest = getClosestHostileWithinAABB(this.tameable.getOwner().getEntityBoundingBox().grow(this.maxDistance, 3.0D, (double) this.maxDistance), this.tameable.getOwner());
         if (closest != null && this.tameable.getOwner().getDistanceSq(closest) < this.maxDistance * this.maxDistance) {
