@@ -13,8 +13,10 @@ public class WTFBlocks {
     public static BlockBasic CHISELED_STONE;
 
     public static void init() {
+/*
         CHISELED_STONE = new BlockBasic("chiseled_stone", Material.ROCK);
         CHISELED_RED_SANDSTONE = new BlockBasic("chiseled_red_sandstone", Material.ROCK);
-        CHISELED_SANDSTONE = new BlockBasic("chiseled_sandstone", Material.ROCK);
+*/
+        CHISELED_SANDSTONE = new BlockCaracalSandstone("chiseled_sandstone", Material.ROCK);
     }
 }

@@ -38,10 +38,8 @@ public class WorldClassTrustworthyFloppas {
     public static final CreativeTabs WTF_TAB = new CreativeTabs(Tags.MODID) {
         @Override
         public ItemStack createIcon() {
-            return new ItemStack(WTFBlocks.CHISELED_SANDSTONE.getItemBlock().get());
+            return new ItemStack(WTFBlocks.CHISELED_SANDSTONE);
         }
-
-
     };
     public static final Logger LOGGER = LogManager.getLogger(Tags.MODID);
 
@@ -60,7 +58,7 @@ public class WorldClassTrustworthyFloppas {
 
     private static <T extends Block> ItemBlock createItemBlock(T block, Function<T, ItemBlock> producer) {
         ItemBlock itemBlock = producer.apply(block);
-        itemBlock.setRegistryName(Objects.requireNonNull(block.getRegistryName())).setCreativeTab(WTF_TAB);
+        itemBlock.setRegistryName(Objects.requireNonNull(block.getRegistryName()));
 
         return itemBlock;
     }
@@ -70,7 +68,6 @@ public class WorldClassTrustworthyFloppas {
         registry.register(createItemBlock(WTFBlocks.CHISELED_SANDSTONE, ItemBlock::new));
     }
     @SubscribeEvent
-    // Register blocks here (Remove if not needed)
     public void registerBlocks(@NotNull RegistryEvent.Register<Block> event) {
         event.getRegistry().register(WTFBlocks.CHISELED_SANDSTONE);
     }
@@ -80,18 +77,15 @@ public class WorldClassTrustworthyFloppas {
         GameRegistry.addShapedRecipe(new ResourceLocation("caracalsmod:chiseled_sandstone_recipe"),
                 new ResourceLocation("caracalsmod"),
                 new ItemStack(WTFBlocks.CHISELED_SANDSTONE, 1),
-                new Object[]{
-                        "ss ",
-                        "   ",
-                        "   ",
-                        's', new ItemStack(Blocks.STONE_SLAB, 1, 1)
-                });
+                "ss ",
+                "   ",
+                "   ",
+                's', new ItemStack(Blocks.STONE_SLAB, 1, 1));
     }
 
     @EventHandler
     // load "Do your mod setup. Build whatever data structures you care about." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
-
     }
 
     @EventHandler

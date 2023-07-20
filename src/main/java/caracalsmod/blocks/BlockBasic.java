@@ -19,6 +19,7 @@ public class BlockBasic extends Block implements IWTFBlock {
         super(material);
         setRegistryName(name);
         setTranslationKey(Tags.MODID + "." + name);
+        setCreativeTab(WorldClassTrustworthyFloppas.WTF_TAB);
         register();
     }
 
