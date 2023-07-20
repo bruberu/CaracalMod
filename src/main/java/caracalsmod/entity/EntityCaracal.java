@@ -25,6 +25,8 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeBeach;
+import net.minecraft.world.biome.BiomeStoneBeach;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -60,7 +62,7 @@ public class EntityCaracal extends EntityTameable {
         ArrayList<Biome> commonBiomes = new ArrayList<>();
         ArrayList<Biome> rareBiomes = new ArrayList<>();
         for (Biome biome : Biome.REGISTRY) {
-            if (biome.getBiomeName().equals("Beach")) continue;
+            if (biome instanceof BiomeBeach || biome instanceof BiomeStoneBeach) continue;
             float defaultTemp = biome.getDefaultTemperature();
             float defaultRain = biome.getRainfall();
             float variance = (float) Math.sqrt(Math.pow(BIOME_AVG_TEMP - defaultTemp, 2) + Math.pow((BIOME_AVG_RAIN - defaultRain), 2)) - 0.01F;
