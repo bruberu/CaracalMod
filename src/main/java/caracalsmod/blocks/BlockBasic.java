@@ -10,17 +10,16 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.Optional;
 
-public class BlockBase extends Block {
+public class BlockBasic extends Block implements IWTFBlock {
     /**
      * @param name Block id (for internal use)
      * @param material Material the block behaves like
      */
-    protected BlockBase(String name, Material material) {
+    protected BlockBasic(String name, Material material) {
         super(material);
         setRegistryName(name);
         setTranslationKey(Tags.MODID + "." + name);
-        setCreativeTab(WorldClassTrustworthyFloppas.WTF_TAB);
-        WTFBlocks.BLOCKS.add(this);
+        register();
     }
 
     public Optional<Item> getItemBlock() {
@@ -28,5 +27,9 @@ public class BlockBase extends Block {
         return (registryName != null) ?
                 Optional.of(new ItemBlock(this).setRegistryName(registryName)) :
                 Optional.empty();
+    }
+
+    public Block getBlock() {
+        return this;
     }
 }
